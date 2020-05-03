@@ -192,7 +192,27 @@ class Buscador extends React.Component{
             });
         });
     };
-          
+
+    handleChangePage = (event, page) => {
+        this.setState({page:page+1}, () => {
+            this.buscar();
+        });
+    };
+     
+    handleChangeRowsPerPage = event => {
+        this.setState({rowsPerPage: event.target.value, page: 1}, () => {
+            this.buscar();
+        });
+    };
+     
+    verDetalle = (event, elemento) => {
+        this.setState({elementoSeleccionado: elemento});
+    };
+
+    handleChangeDetail = () => {
+        this.setState({elementoSeleccionado: null});
+    };
+         
     render() {
         const {classes} = this.props;
         const {nombres, primerApellido, segundoApellido, rfc, curp, institucionDependencia, campoOrden, tipoOrden, institucionesLista, tipoProcedimiento} = this.state;
@@ -413,6 +433,28 @@ class Buscador extends React.Component{
                     </Grid>
 
                 </Grid>
+
+                {/*TABLA*/}
+                {this.state.filterData && this.state.filterData.length > 0 && this.state.elementoSeleccionado === null &&
+                <Grid container className={classes.root}>
+                    <Grid item xs={12} >
+                        <TablaServidores data={this.state.filterData} page={this.state.page}
+                                                    rowsPerPage={this.state.rowsPerPage}
+                                                    totalRows={this.state.totalRows}
+                                                    handleChangePage={this.handleChangePage}
+                                                    handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                                    verDetalle={this.verDetalle}/>
+                    </Grid>
+                </Grid>
+                }
+                {/*Detalle*/}
+                {
+                    this.state.elementoSeleccionado !== null &&
+                    <DetalleServidor handleChangeDetail={this.handleChangeDetail}
+                                               servidor={this.state.elementoSeleccionado}
+                    />
+                }
+                                
             </div>
         );
     }
