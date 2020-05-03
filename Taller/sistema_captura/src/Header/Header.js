@@ -7,6 +7,9 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Grid from "@material-ui/core/Grid";
 import Banner from "../assets/banner.jpg";
+import {Link} from "react-router-dom";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 
 
 const style = theme => ({
@@ -42,20 +45,60 @@ const style = theme => ({
 });
 
 class Header extends React.Component{
+
+    constructor() {
+        super();
+        this.state={
+            anchorEl: null
+        }
+     }
+     
+     handleMenu = event => {
+        this.setState({ anchorEl: event.currentTarget });
+     };
+     
+     
+     handleClose = () => {
+        this.setState({ anchorEl: null});
+    };
+     
     render() {
         const {classes} = this.props;
+        const { anchorEl } = this.state;
+        const open = Boolean(anchorEl);
+
 
         return (
             <div className={classes.root}>
                 <Grid container alignItems={"center"} justify={"center"} className={classes.root}>
                     <Grid item className={classes.toolbar} xs={12}>
-                        <Toolbar>
-                            <IconButton edge="start">
-                                <MenuIcon/>
-                            </IconButton>
-                            <div className={classes.space}></div>
-                            <Button>Iniciar sesión</Button>
-                        </Toolbar>
+                    <Toolbar>
+                        <IconButton edge="start"
+                                    onClick={this.handleMenu}
+                        >
+                            <MenuIcon/>
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "right"
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right"
+                            }}
+                            open={open}
+                            onClose={this.handleClose}
+                        >
+                            <MenuItem component={Link} to={'/'}>Captura de Servidores</MenuItem>
+                            <MenuItem component={Link} to={'/consulta'}>Consulta de Servidores</MenuItem>
+                        </Menu>
+                        <div className={classes.space}></div>
+                        <Button>Iniciar sesión</Button>
+                    </Toolbar>
+
                     </Grid>
                 </Grid>
                 <Grid container spacing={0} className={classes.container1} justify='center'>
