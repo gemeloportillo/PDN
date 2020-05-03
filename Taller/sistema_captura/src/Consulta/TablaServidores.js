@@ -143,4 +143,4 @@ class TablaServidores extends React.Component{
     }
 }
 
-export default (withStyles(style)(TablaServidores));
+export default (withStyles(styles)(TablaServidores));

@@ -11,6 +11,8 @@ import Select from "@material-ui/core/Select";
 import Checkbox from "@material-ui/core/Checkbox";
 import ListItemText from "@material-ui/core/ListItemText";
 import Input from "@material-ui/core/Input";
+import TablaServidores from "./TablaServidores";
+import DetalleServidor from "./DetalleServidor";
 
 const axios = require('axios');
 
@@ -454,7 +456,7 @@ class Buscador extends React.Component{
                                                servidor={this.state.elementoSeleccionado}
                     />
                 }
-                                
+
             </div>
         );
     }
