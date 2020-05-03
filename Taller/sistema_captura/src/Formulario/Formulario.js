@@ -149,8 +149,11 @@ class Formulario extends React.Component{
             //.then(response) *Si es exitosa se ejecuta esta función y la respuesta estará encapsulada en response. 
             //.catch(error) *Si la petición no es exitosa se ejecuta esta función y el error estará encapsulado en error.
             //url 'http://localhost:3200/v1/spic/create' *Url donde se está ejecutando el API (back).
+            //url process.env.REACT_APP_API+'create' *Url utilizando variables de entorno con el objeto process y la propiedad .env 
+            //      se define una variable de entorno para controlar la URL del API utilizada. Util para configurar sin editar codigo. 
             //body: el API espera en el body el registro que se va a almacenar, ese registro será devuelto por la función this.limpiaRegistro()
-            axios.post('http://localhost:3000/v1/spic/create',
+            
+            axios.post(process.env.REACT_APP_API+'create',
                 this.limpiaRegistro()
                 ).then(response => {
                 this.handleNext();
