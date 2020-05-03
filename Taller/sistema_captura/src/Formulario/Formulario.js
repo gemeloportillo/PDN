@@ -13,6 +13,7 @@ import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import DatosServidor from "./DatosServidor";
+import DatosSuperior from "./DatosSuperior";
 
 
 
@@ -137,14 +138,15 @@ class Formulario extends React.Component{
                                       handleDates={this.handleChangeDates}
                                       handleChangeObject={this.handleChangeObject}/>;
             case 1:
-                return <div></div>;
+                return <DatosSuperior superior={this.state.registro.superiorInmediato}
+                          handleChange={this.handleChangeSuperior}/>;
             case 2:
                 return 'Pulsa el botón Guardar para salvar el registro.';
             default:
                 return 'No permitido';
         }
-    }     
-
+     }
+     
     handleChangeCampo = (campo, evento) => {
         let newVal = evento.target ? evento.target.value : evento.value;
         this.setState(prevState => {
@@ -180,7 +182,23 @@ class Formulario extends React.Component{
             }
         })
     }
-    
+
+    handleChangeSuperior = (campo, evento) => {
+        let newVal = evento.target ? evento.target.value : evento.value;
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                registro: {
+                    ...prevState.registro,
+                    superiorInmediato: {
+                        ...prevState.registro.superiorInmediato,
+                        [campo]: newVal
+                    }
+                }
+            }
+        })
+    }
+         
     render() {
         const {classes} = this.props;
         const {activeStep, steps} = this.state;
