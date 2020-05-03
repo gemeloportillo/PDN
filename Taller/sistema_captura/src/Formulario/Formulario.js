@@ -9,6 +9,11 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Grid from "@material-ui/core/Grid";
 import Banner from "../assets/banner.jpg";
 import Header from "../Header/Header";
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import DatosServidor from "./DatosServidor";
+
 
 
 const style = theme => ({
@@ -34,10 +39,151 @@ const style = theme => ({
 
 });
 
+let registroNuevo = {
+    fechaCaptura: new Date(),
+    ejercicioFiscal: 2020,
+    ramo: '',
+    rfc: "",
+    curp: "",
+    nombres: "",
+    primerApellido: "",
+    segundoApellido: "",
+    genero: '',
+    institucionDependencia: '',
+    puesto: '',
+    tipoArea: [],
+    nivelResponsabilidad: [],
+    tipoProcedimiento: [],
+    superiorInmediato: {
+        nombres: "",
+        primerApellido: "",
+        segundoApellido: "",
+        curp: "",
+        rfc: "",
+        puesto: ''
+    }
+};
+
 class Formulario extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            activeStep: 0,
+            steps: ['Datos del Servidor Público', 'Datos del superior', 'Agregar'],
+            skipped: new Set(),
+            registro: registroNuevo,
+        }
+    }
+
+    isStepOptional = step => {
+        return step === 1;
+    };
+
+    isStepSkipped = step => {
+        return this.state.skipped.has(step);
+    };
+
+    handleNext = () => {
+        let newSkipped = this.state.skipped;
+        if (this.isStepSkipped(this.state.activeStep)) {
+            newSkipped = new Set(newSkipped.values());
+            newSkipped.delete(this.state.activeStep);
+        }
+
+        this.setState((prevState) => {
+            return {
+                activeStep: prevState.activeStep + 1
+            }
+        });
+        this.setState(newSkipped);
+    };
+
+    handleBack = () => {
+        this.setState((prevState) => {
+            return {
+                activeStep: prevState.activeStep - 1
+            }
+        })
+    };
+
+    handleSkip = () => {
+        if (!this.isStepOptional(this.state.activeStep)) {
+            // You probably want to guard against something like this,
+            // it should never occur unless someone's actively trying to break something.
+            throw new Error("You can't skip a step that isn't optional.");
+        }
+
+        this.setState((prevState) => {
+            return {
+                activeStep: prevState.activeStep + 1,
+                skipped: new Set(prevState.skipped.values()).add(prevState.activeStep + 1)
+            }
+        });
+
+    };
+
+    handleReset = () => {
+        this.setState({
+            activeStep: 0,
+            registro: JSON.parse(JSON.stringify(registroNuevo))
+        })
+    };
+    handleSave = () => { }
+
+    getStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return <DatosServidor registro={this.state.registro} handleChange={this.handleChangeCampo}
+                                      handleDates={this.handleChangeDates}
+                                      handleChangeObject={this.handleChangeObject}/>;
+            case 1:
+                return <div></div>;
+            case 2:
+                return 'Pulsa el botón Guardar para salvar el registro.';
+            default:
+                return 'No permitido';
+        }
+    }     
+
+    handleChangeCampo = (campo, evento) => {
+        let newVal = evento.target ? evento.target.value : evento.value;
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                registro: {
+                    ...prevState.registro,
+                    [campo]: newVal
+                }
+            }
+        })
+    };
+     
+    handleChangeObject = (campo, val) => {
+        let atributo = this.state.registro[campo];
+        if (Array.isArray(atributo)) {
+            if (atributo.indexOf(val) === -1) {//No esta->se agrega
+                atributo.push(val)
+            } else {
+                atributo.splice(atributo.indexOf(val), 1)
+            }
+        } else {
+            atributo = val;
+        }
+        
+        this.setState((prevState) => {
+            return {
+                ...prevState,
+                registro: {
+                    ...prevState.registro,
+                    [campo]: atributo
+                }
+            }
+        })
+    }
+    
     render() {
         const {classes} = this.props;
-        //const {activeStep, steps} = this.state;
+        const {activeStep, steps} = this.state;
         return (
             <div>
                 <Header/>
@@ -92,6 +238,79 @@ class Formulario extends React.Component{
                         </ul>
                     </Grid>
                 </Paper>
+                <Stepper activeStep={activeStep}>
+                {steps.map((label, index) => {
+                    const stepProps = {};
+                    const labelProps = {};
+                    if (this.isStepOptional(index)) {
+                    labelProps.optional = <Typography variant="caption">                Opcional</Typography>;
+                        }
+                    if (this.isStepSkipped(index)) {
+                    stepProps.completed = false;
+                    }
+                    return (
+                    <Step key={label} {...stepProps}>
+                        <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                        );
+                    })}
+                </Stepper>
+                <div>
+                    {activeStep === steps.length ? (
+                        <div>
+                            <Typography className={classes.instructions}>
+                                Registro guardado correctamente!
+                            </Typography>
+                            <Button onClick={this.handleReset} className={classes.button}>
+                                Nuevo
+                            </Button>
+                        </div>
+                    ) : (
+                        <Grid container spacing={4}>
+                            <Grid item xs={12}>
+                                {this.getStepContent(activeStep)}
+                            </Grid>
+                            <Grid item md={6}/>
+                            <Grid item xs={12} md={6} className={classes.botonera}>
+                                <Button disabled={activeStep === 0} onClick={this.handleBack}
+                                        className={classes.boton}>
+                                    Atrás
+                                </Button>
+                                {this.isStepOptional(activeStep) && (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={this.handleSkip}
+                                        className={classes.boton}
+                                    >
+                                        Saltar
+                                    </Button>
+                                )}
+
+                                {
+                                    (activeStep === steps.length - 1) ? <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={this.handleSave}
+                                            className={classes.boton}
+                                        >
+                                            Guardar
+                                        </Button> :
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={this.handleNext}
+                                            className={classes.boton}
+                                        >
+                                            Siguiente
+                                        </Button>
+                                }
+                            </Grid>
+                        </Grid>
+
+                    )}
+                </div>
+
                 </Grid>
             </div>
         );
