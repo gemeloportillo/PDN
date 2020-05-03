@@ -21,9 +21,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 
 
-
-
-
+const axios = require('axios');
 
 const style = theme => ({
     root: {
@@ -141,8 +139,60 @@ class Formulario extends React.Component{
             registro: JSON.parse(JSON.stringify(registroNuevo))
         })
     };
-    handleSave = () => { }
 
+    //Petición HTTP: Si la función isValido retorna un verdadero, se hace la llamada al API para almacenar los datos
+    //               Si retorna false muestra un mensaje de error, asignando true al atributo error y el mensaje correspondiente
+    handleSave = () => {
+        if (this.isValido()) {
+            //Guardar el registro
+            //.post *La petición será de tipo POST.
+            //.then(response) *Si es exitosa se ejecuta esta función y la respuesta estará encapsulada en response. 
+            //.catch(error) *Si la petición no es exitosa se ejecuta esta función y el error estará encapsulado en error.
+            //url 'http://localhost:3200/v1/spic/create' *Url donde se está ejecutando el API (back).
+            //body: el API espera en el body el registro que se va a almacenar, ese registro será devuelto por la función this.limpiaRegistro()
+            axios.post('http://localhost:3000/v1/spic/create',
+                this.limpiaRegistro()
+                ).then(response => {
+                this.handleNext();
+                }).catch(error => {
+                this.setState({
+                    error: true,
+                    mensajeError: error.message ? error.message : "Error al guardar el registro"
+                })
+            })
+
+        } else {
+            this.setState({
+                error: true,
+                mensajeError: 'Los campos marcados con asterisco son requeridos. En caso de introducir RFC y/o CURP deben ser valores válidos.'
+            })
+        }
+    }
+    
+    //En caso de que un atributo no tenga valor, o que sea un arreglo y se encuentre vacio, no se envía para almacenarse.
+    //Tratandose del superiorInmediato, en caso de que ninguno de sus atributos tenga valor, deberá omitirse su envío.
+    limpiaRegistro=(obj) =>{
+        let objeto = obj? obj : this.state.registro;
+        let propiedades = Object.keys(objeto);
+        let objetoLimpio = {};
+     
+        for(let c = 0; c<= propiedades.length;c++){
+            let propiedad = propiedades[c];
+            if(objeto[propiedad]){
+                if(propiedad === 'superiorInmediato'){
+                    let si = this.limpiaRegistro(objeto[propiedad])
+                    if(Object.keys(si).length>0)
+                        objetoLimpio[propiedad] = si;
+                }
+                else if(Array.isArray(objeto[propiedad]) && objeto[propiedad].length>0)
+                    objetoLimpio[propiedad] = objeto[propiedad]
+                else if(!Array.isArray(objeto[propiedad]))
+                    objetoLimpio[propiedad] = objeto[propiedad]
+            }
+        }
+        return objetoLimpio
+    }
+     
     getStepContent = (step) => {
         switch (step) {
             case 0:
