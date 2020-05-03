@@ -14,6 +14,14 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import DatosServidor from "./DatosServidor";
 import DatosSuperior from "./DatosSuperior";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+
+
+
 
 
 
@@ -64,6 +72,10 @@ let registroNuevo = {
         puesto: ''
     }
 };
+
+let regRFC = new RegExp('^$|^([A-Z,Ñ,&]{3,4}([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[A-Z|\\d]{3})$');
+let regCURP = new RegExp('^$|^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$')
+
 
 class Formulario extends React.Component{
     constructor(props) {
@@ -198,6 +210,30 @@ class Formulario extends React.Component{
             }
         })
     }
+
+    //Validaciones: Retorna un booleano que indica si el formulario es válido o no, es decir, si los campos que son requeridos
+    //han sido capturados y en caso de haber introducido RFC y/o CURP valida que tenga el formato correcto
+    isValido = () => {
+        let valido = true;
+        let {registro} = this.state;
+        if(!registro.nombres || !registro.primerApellido || !registro.institucionDependencia || !registro.puesto || registro.tipoProcedimiento.length===0 ||
+            registro.rfc.match(regRFC)== null || registro.curp.match(regCURP)== null
+        )
+            valido = false;
+        return valido;
+    }
+
+
+
+    //Alertas: Resultado de las validaciones mostramos mensajes para informar al usuario lo ocurrido.
+    //Se utiliza el componente Dialog de MaterialUI   
+    //      Manejador para cerrar el diálogo: Agrega al state los atributos error igual a false
+    handleClose = () => {
+        this.setState({
+            error: false
+        })
+     }
+     
          
     render() {
         const {classes} = this.props;
@@ -255,6 +291,25 @@ class Formulario extends React.Component{
                             </li>
                         </ul>
                     </Grid>
+                    <Dialog
+                        open={this.state.error}
+                        onClose={() => this.handleClose()}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                        >
+                        <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                                {this.state.mensajeError}
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => this.handleClose()} color="primary" autoFocus>
+                                Aceptar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
                 </Paper>
                 <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
