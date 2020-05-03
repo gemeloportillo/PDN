@@ -1,4 +1,11 @@
 import React from 'react';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route
+ } from "react-router-dom";
+ import Consulta from "./Consulta/Consulta";
+ 
 import Formulario from "./Formulario/Formulario";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 
@@ -30,9 +37,18 @@ const theme = createMuiTheme({
 });
 function App() {
   return (
-      <ThemeProvider theme = {theme}>
-            <Formulario/>
-      </ThemeProvider>
+    <ThemeProvider theme = {theme}>
+    <Router>
+        <Switch>
+            <Route exact path="/">
+                <Formulario/>
+            </Route>
+            <Route exact path="/consulta">
+                <Consulta/>
+            </Route>
+        </Switch>
+    </Router>
+    </ThemeProvider>
 
   );
 }
