@@ -1,6 +1,6 @@
 FROM node:12-alpine
 
-MAINTAINER Sergio Rodríguez <sergio.rdzsg@gmail.com>
+MAINTAINER Miguel Angel Portillo Bobadilla <miguel.portillo.pdn@gmail.com>
 
 ADD . /frontEnd
 WORKDIR /frontEnd
